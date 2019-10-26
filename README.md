@@ -52,7 +52,7 @@ You can select the extra data collected by using the "Properties" property:
 * tags: reports the tags associated with the virtual machine
 * numcpu: reports the number of virtual cpus the virtual machine has
 * memorysizemb: reports the quantity of memory the virtual machine has
-* disks: reports the logical disks capacity inside the virtua machine
+* disks: reports the logical disks capacity inside the virtual machine
 * **all**: reports all the information
 
 ### vCenter parameters
