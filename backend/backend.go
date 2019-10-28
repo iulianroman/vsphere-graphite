@@ -170,9 +170,9 @@ func (backend *Config) Init() (*chan Channels, error) {
 		}()
 		return queries, nil
 	case Fluentd:
-		//Initialize Influx DB
+		//Initialize Fluentd
 		log.Printf("backend %s: initializing\n", backendType)
-		fluentclt, err := fluent.New(fluent.Config{FluentPort: backend.Port, FluentHost: backend.Hostname, MarshalAsJSON: true})
+		fluentclt, err := fluent.New(fluent.Config{FluentPort: backend.Port, FluentHost: backend.Hostname, MarshalAsJSON: true, RequestAck: true})
 		if err != nil {
 			log.Printf("backend %s: error connecting - %s\n", backendType, err)
 			return queries, err
