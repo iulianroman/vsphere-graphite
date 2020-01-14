@@ -24,13 +24,6 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
-const (
-	// VCENTERRESULTLIMIT is the maximum amount of result to fetch back in one query
-	VCENTERRESULTLIMIT = 500000.0
-	// INSTANCERATIO is the number of effective result in fonction of the metrics. This is necessary due to the possibility to retrieve instances with wildcards
-	INSTANCERATIO = 3.0
-)
-
 var cache Cache
 
 // VCenter description
@@ -165,7 +158,7 @@ func (vcenter *VCenter) Init(metrics []*Metric) {
 }
 
 // Query : Query a vcenter
-func (vcenter *VCenter) Query(interval int, domain string, replacepoint bool, properties []string, channel *chan backend.Point, wg *sync.WaitGroup) {
+func (vcenter *VCenter) Query(interval int, domain string, replacepoint bool, properties []string, resultLimit int, instanceRatio float64, channel *chan backend.Point, wg *sync.WaitGroup) {
 	defer func() {
 		if wg != nil {
 			wg.Done()
@@ -483,14 +476,14 @@ func (vcenter *VCenter) Query(interval int, domain string, replacepoint bool, pr
 		metriccount = metriccount + len(query.MetricId)
 	}
 
-	expCounters := math.Ceil(float64(metriccount) * INSTANCERATIO)
+	expCounters := math.Ceil(float64(metriccount) * instanceRatio)
 	log.Printf("vcenter %s: queries generated", vcName)
 	log.Printf("vcenter %s: %d queries\n", vcName, querycount)
 	log.Printf("vcenter %s: %d total metricIds\n", vcName, metriccount)
-	log.Printf("vcenter %s: %g total counter (accounting for %g instances ratio)\n", vcName, expCounters, INSTANCERATIO)
+	log.Printf("vcenter %s: %g total counter (accounting for %g instances ratio)\n", vcName, expCounters, instanceRatio)
 
 	// separate in batches of queries if to avoid 500000 returend perf limit
-	batches := math.Ceil(expCounters / VCENTERRESULTLIMIT)
+	batches := math.Ceil(expCounters / float64(resultLimit))
 	batchqueries := make([]*types.QueryPerf, int(batches))
 	querieslen := len(queries)
 	batchsize := int(math.Ceil(float64(querieslen) / batches))

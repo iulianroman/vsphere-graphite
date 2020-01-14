@@ -17,4 +17,9 @@ type Configuration struct {
 	MEMProfiling bool
 	FlushSize    int
 	ReplacePoint bool
+	// VCenterResultLimit is the maximum amount of results to fetch back in one query
+	VCenterResultLimit int
+	// VCenterInstanceRatio is the number of effective result in fonction of the metrics.
+	// This is necessary due to the possibility to retrieve instances with wildcards
+	VCenterInstanceRatio float64
 }
