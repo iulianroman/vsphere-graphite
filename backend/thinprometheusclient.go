@@ -40,7 +40,7 @@ func NewThinPrometheusClient(server string, port int) (ThinPrometheusClient, err
 	return ThinPrometheusClient{Hostname: server, Port: port, address: address}, nil
 }
 
-// ListenAndServe will start the listen thead for metric requests
+// ListenAndServe will start the listen thread for metric requests
 func (client *ThinPrometheusClient) ListenAndServe() error {
 	log.Printf("thinprom: start listening for metric request at %s\n", client.address)
 	return fasthttp.ListenAndServe(client.address, fasthttp.CompressHandlerLevel(requestHandler, 9))
@@ -58,7 +58,7 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	// create a buffer to organise metrics per type
 	buffer := map[string][]string{}
 	log.Println("thinprom: sending query request")
-	// start the queriess
+	// start the queries
 	select {
 	case *queries <- channels:
 		log.Println("thinprom: sent query Request")
@@ -70,9 +70,9 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	timeout := time.NewTimer(100 * time.Millisecond)
 	// collected points
 	points := 0
-	// recieve done
+	// receive done
 	recdone := false
-	log.Println("Tthinprom: waiting for query results")
+	log.Println("thinprom: waiting for query results")
 L:
 	for {
 		select {
@@ -85,7 +85,7 @@ L:
 				}
 			}
 			timeout.Reset(100 * time.Millisecond)
-			// increased recieved points
+			// increased received points
 			points++
 			// add point to the buffer
 			addToThinPrometheusBuffer(buffer, &point)

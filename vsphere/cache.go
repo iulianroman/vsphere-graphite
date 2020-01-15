@@ -11,7 +11,7 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
-// Cache will hold some informations in memory
+// Cache will hold some information's in memory
 type Cache map[string]interface{}
 
 var lock = sync.RWMutex{}
@@ -158,8 +158,8 @@ func (c *Cache) GetDiskInfos(vcenter, section, i string) *[]types.GuestDiskInfo 
 	return nil
 }
 
-// GetVirtualMahineConnectionState gets a virtual machine connection state from cache
-func (c *Cache) GetVirtualMahineConnectionState(vcenter, section, i string) *types.VirtualMachineConnectionState {
+// GetVirtualMachineConnectionState gets a virtual machine connection state from cache
+func (c *Cache) GetVirtualMachineConnectionState(vcenter, section, i string) *types.VirtualMachineConnectionState {
 	if v, ok := c.get(vcenter, section, i).(*types.VirtualMachineConnectionState); ok {
 		return v
 	}
@@ -174,8 +174,8 @@ func (c *Cache) GetHostSystemConnectionState(vcenter, section, i string) *types.
 	return nil
 }
 
-// GetVirtualMahinePowerState gets a virtual machine power state from cache
-func (c *Cache) GetVirtualMahinePowerState(vcenter, section, i string) *types.VirtualMachinePowerState {
+// GetVirtualMachinePowerState gets a virtual machine power state from cache
+func (c *Cache) GetVirtualMachinePowerState(vcenter, section, i string) *types.VirtualMachinePowerState {
 	if v, ok := c.get(vcenter, section, i).(*types.VirtualMachinePowerState); ok {
 		return v
 	}
@@ -194,7 +194,7 @@ func (c *Cache) GetHostSystemPowerState(vcenter, section, i string) *types.HostS
 func (c *Cache) GetConnectionState(vcenter, section, i string) *string {
 	value := ""
 	if strings.HasPrefix(i, "vm-") {
-		state := c.GetVirtualMahineConnectionState(vcenter, section, i)
+		state := c.GetVirtualMachineConnectionState(vcenter, section, i)
 		if state == nil {
 			return nil
 		}
@@ -215,7 +215,7 @@ func (c *Cache) GetConnectionState(vcenter, section, i string) *string {
 func (c *Cache) GetPowerState(vcenter, section, i string) *string {
 	value := ""
 	if strings.HasPrefix(i, "vm-") {
-		state := c.GetVirtualMahinePowerState(vcenter, section, i)
+		state := c.GetVirtualMachinePowerState(vcenter, section, i)
 		if state == nil {
 			return nil
 		}
@@ -232,7 +232,7 @@ func (c *Cache) GetPowerState(vcenter, section, i string) *string {
 	return nil
 }
 
-// Clean cache of unknows references
+// Clean cache of unknown references
 func (c *Cache) Clean(vcenter string, section string, refs []string) {
 	lock.Lock()
 	defer lock.Unlock()
@@ -434,7 +434,7 @@ func (c *Cache) FindNames(vcenter, section, moref string) []string {
 	return names
 }
 
-// FindTags finds objects in cachee and create a tag array
+// FindTags finds objects in cache and create a tag array
 func (c *Cache) FindTags(vcenter, moref string) []string {
 	tags := []string{}
 	ptr := cache.GetTags(vcenter, "tags", moref)
