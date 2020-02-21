@@ -40,7 +40,7 @@ func (vcenter *VCenter) ToString() string {
 }
 
 // AddMetric : add a metric definition to a metric group
-func (vcenter *VCenter) AddMetric(metric *MetricDef, mtype string) {
+func (vcenter *VCenter) AddMetric(metric MetricDef, mtype string) {
 	// find the metric group for the type
 	var metricGroup *MetricGroup
 	for _, tmp := range vcenter.MetricGroups {
@@ -61,7 +61,7 @@ func (vcenter *VCenter) AddMetric(metric *MetricDef, mtype string) {
 			return
 		}
 	}
-	metricGroup.Metrics = append(metricGroup.Metrics, metric)
+	metricGroup.Metrics = append(metricGroup.Metrics, &metric)
 }
 
 // Connect : Connect to vcenter
@@ -147,7 +147,7 @@ func (vcenter *VCenter) Init(metrics []*Metric) {
 				continue
 			}
 			for _, mtype := range metric.ObjectType {
-				vcenter.AddMetric(metricdef, mtype)
+				vcenter.AddMetric(*metricdef, mtype)
 			}
 		}
 	}
