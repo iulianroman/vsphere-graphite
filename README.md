@@ -4,7 +4,7 @@
 
 Monitors VMware vSphere stats using govmomi. Sinks metrics to one of many time series backends.
 
-Written in go to achieve fast sampling rates and high throughput sink. Successfuly benchmarked against 3000 VM's, logging 150,000 metrics per minute to an ElasticSearch backend.
+Written in go to achieve fast sampling rates and high throughput sink. Successfully benchmarked against 3000 VM's, logging 150,000 metrics per minute to an ElasticSearch backend.
 
 Compatible backends:
 
@@ -52,12 +52,12 @@ You can select the extra data collected by using the "Properties" property:
 * tags: reports the tags associated with the virtual machine
 * numcpu: reports the number of virtual cpus the virtual machine has
 * memorysizemb: reports the quantity of memory the virtual machine has
-* disks: reports the logical disks capacity inside the virtua machine
+* disks: reports the logical disks capacity inside the virtual machine
 * **all**: reports all the information
 
 ### vCenter parameters
 
-vCenter parameters can be set in the configuration file or via environement variable.
+vCenter parameters can be set in the configuration file or via environment variable.
 
 The configuration file needs the username, password and hostname of the vCenter (from [sample config](./vsphere-graphite-example.json)):
 
@@ -68,7 +68,7 @@ The configuration file needs the username, password and hostname of the vCenter 
 ]
 ```
 
-If set via environement variable you can set multiple vcenters via ```VCENTER_*=<username>:<password>@<hostname>```
+If set via environment variable you can set multiple vcenters via ```VCENTER_*=<username>:<password>@<hostname>```
 
 To follow the example given in the sample file:
 ```
@@ -78,14 +78,14 @@ VCENTER_VC2=CONTOSO\\Administrator:$P@ssw0rd@vc2.consoso.com
 
 ### Backend parameters
 
-Backend parameters can be set in the config and will allways be overriden by environment variables.
-This allows to use a generic config in a container image and set the backend by environement variables.
+Backend parameters can be set in the config and will always be overridden by environment variables.
+This allows to use a generic config in a container image and set the backend by environment variables.
 
 * Type (CONFIG_TYPE): 
 
   Type of backend to use.
 
-  Currently "graphite", "influxdb", "thinfluxdb" (embeded influx client), "elastic", "prometheus", "thinprometheus" (embeded prometheus) and "fluentd"
+  Currently "graphite", "influxdb", "thinfluxdb" (embeded influx client), "elastic", "prometheus", "thinprometheus" (embedded prometheus) and "fluentd"
 
 * Hostname (CONFIG_HOSTNAME):
 
@@ -108,7 +108,7 @@ This allows to use a generic config in a container image and set the backend by 
   Only supported by "influx", "thininflux" and "elastic" backends.
 
 >
-> Prometheus suppport for this would require certificate management.
+> Prometheus support for this would require certificate management.
 >
 
 * Username (CONFIG_USERNAME):
@@ -147,11 +147,11 @@ All builds are pushed to docker:
 
 Default tags includes:
 
-* commit for specific commit in the branch (usefull to run from tip)
+* commit for specific commit in the branch (useful to run from tip)
 * latest for latest release
-* specific realease tag or version
+* specific release tag or version
 
-The JSON configration file can be passed by mounting to /etc. Edit the configuration file and set it in the place you like here $(pwd)
+The JSON configuration file can be passed by mounting to /etc. Edit the configuration file and set it in the place you like here $(pwd)
 
   > docker run -t -v $(pwd)/vsphere-graphite.json:/etc/vsphere-graphite.json cblomart/vsphere-graphite:latest
 
@@ -163,8 +163,8 @@ A sample [docker compose file](./compose/vsphere-graphite-graphite-test.yml) is 
 this sample will start:
 
 * vcsim ([vCenter simulator by govmomi](https://github.com/vmware/govmomi/tree/master/vcsim))
-* graphite (["Offical" Graphite docker image](https://hub.docker.com/r/graphiteapp/graphite-statsd/)) the port 80 will be published to access the web interface.
-* vsphere-graphite with the necessary environement parameters to address the started backend and vcenter
+* graphite (["Official" Graphite docker image](https://hub.docker.com/r/graphiteapp/graphite-statsd/)) the port 80 will be published to access the web interface.
+* vsphere-graphite with the necessary environment parameters to address the started backend and vcenter
 
 To start this with swarm:
 
@@ -180,7 +180,7 @@ To start this with swarm:
 
 ## Execute vsphere-graphite in shell
 
-Heavilly based on [govmomi](https://github.com/vmware/govmomi) but also on [daemon](github.com/takama/daemon) which provides simple daemon/service integration.
+Heavily based on [govmomi](https://github.com/vmware/govmomi) but also on [daemon](github.com/takama/daemon) which provides simple daemon/service integration.
 
 ### Install golang
 
@@ -238,7 +238,7 @@ So don't hesitate and tell us what doesn't work or what you miss.
 
 ## Donations
 
-This project is largely alive because of the forementioned contributors. Our time is precious bet it is even more precious to us when we can spend it on our beloved projects. So don't hesitate to make a donation (see badge)
+This project is largely alive because of the aforementioned contributors. Our time is precious bet it is even more precious to us when we can spend it on our beloved projects. So don't hesitate to make a donation (see badge)
 
 ## License
 

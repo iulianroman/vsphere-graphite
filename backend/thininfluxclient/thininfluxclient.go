@@ -33,8 +33,8 @@ type ThinInfluxClient struct {
 	password string
 }
 
-// NewThinInlfuxClient creates a new thin influx client
-func NewThinInlfuxClient(server string, port int, database, username, password, precision string, ssl bool) (ThinInfluxClient, error) {
+// NewThinInfluxClient creates a new thin influx client
+func NewThinInfluxClient(server string, port int, database, username, password, precision string, ssl bool) (ThinInfluxClient, error) {
 	// config checks
 	errormessage := ""
 	if len(server) == 0 {
@@ -54,7 +54,7 @@ func NewThinInlfuxClient(server string, port int, database, username, password, 
 		}
 	}
 	if !found {
-		errormessage = "Precision '" + precision + "' not in suppoted presisions " + strings.Join(precisions, ",")
+		errormessage = "Precision '" + precision + "' not in supported presisions " + strings.Join(precisions, ",")
 	}
 	fullurl := "http"
 	if ssl {

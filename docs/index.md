@@ -1,6 +1,6 @@
 # vsphere-graphite
 
-Altought it started out as a simple tool to pump vsphere statistics to graphite it was extended to support different backends:
+Although it started out as a simple tool to pump vsphere statistics to graphite it was extended to support different backends:
 
 * [prometheus](https://prometheus.io/)
 * [influxdb](https://www.influxdata.com/)
@@ -8,10 +8,10 @@ Altought it started out as a simple tool to pump vsphere statistics to graphite 
 * [elasticsearch](https://www.elastic.co/)
 * [graphite](https://graphiteapp.org/)
 
-It will basically get the requested statistics for each virtual machine or host and send them to the backend every minuts.
+It will basically get the requested statistics for each virtual machine or host and send them to the backend every minute.
 
 The configuration allows to specify per object types which statistics should be fetched.
-By default cpu count and memory count and, when vmware tools are running, disk informations will be reported.
+By default cpu count and memory count and, when vmware tools are running, disk information will be reported.
 
 For the backends that supports it, extra metadata can be fetched:
 
@@ -19,7 +19,7 @@ For the backends that supports it, extra metadata can be fetched:
 * Networks
 * Cluster
 * ResourcePool
-* Folderp
+* Folder
 
 Sample reports:
 

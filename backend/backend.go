@@ -107,7 +107,7 @@ func (backend *Config) Init() (*chan Channels, error) {
 	case ThinInfluxDB:
 		//Initialize thin Influx DB client
 		log.Printf("backend %s: initializing\n", backendType)
-		thininfluxclt, err := thininfluxclient.NewThinInlfuxClient(backend.Hostname, backend.Port, backend.Database, backend.Username, backend.Password, "s", backend.Encrypted)
+		thininfluxclt, err := thininfluxclient.NewThinInfluxClient(backend.Hostname, backend.Port, backend.Database, backend.Username, backend.Password, "s", backend.Encrypted)
 		if err != nil {
 			log.Printf("backend %s: error creating client - %s\n", backendType, err)
 			return queries, err
@@ -364,7 +364,7 @@ func (backend *Config) SendMetrics(metrics []*Point, cleanup bool) {
 		/** only flush index at the end of cycle - see Clean function
 		_, err = backend.elastic.Flush().Index(elasticindex).Do(context.Background())
 		if err != nil {
-			log.Printf("backend %s: errr flushing data - %s\n", backendType, err)
+			log.Printf("backend %s: err flushing data - %s\n", backendType, err)
 			return
 		}
 		log.Printf("backend %s: elastic indexing flushed", backendType)

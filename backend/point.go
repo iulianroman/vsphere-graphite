@@ -130,7 +130,7 @@ func (point *Point) GetInfluxPoint(noarray bool, valuefield string) *InfluxPoint
 	return &ip
 }
 
-// ToInflux serialises the data to be consumed by influx line protocol
+// ToInflux serializes the data to be consumed by influx line protocol
 // see https://docs.influxdata.com/influxdb/v1.2/write_protocols/line_protocol_tutorial/
 func (point *Point) ToInflux(noarray bool, valuefield string) string {
 	return point.GetInfluxPoint(noarray, valuefield).ToInflux(noarray, valuefield)

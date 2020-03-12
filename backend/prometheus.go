@@ -31,7 +31,7 @@ func (backend *Config) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 
-	// points recieved
+	// points received
 	points := 0
 	// handle timeout between point reception
 	rectimer := time.NewTimer(100 * time.Millisecond)

@@ -45,7 +45,7 @@ type Service struct {
 }
 
 func queryVCenter(vcenter vsphere.VCenter, conf config.Configuration, channel *chan backend.Point, wg *sync.WaitGroup) {
-	vcenter.Query(conf.Interval, conf.Domain, conf.ReplacePoint, conf.Properties, channel, wg)
+	vcenter.Query(conf.Interval, conf.Domain, conf.ReplacePoint, conf.Properties, conf.VCenterResultLimit, conf.VCenterInstanceRatio, channel, wg)
 }
 
 // Manage by daemon commands or run the daemon
@@ -142,7 +142,7 @@ func (service *Service) Manage() (string, error) {
 		defer pprof.StopCPUProfile()
 	}
 
-	//force backend values to environement varialbles if present
+	//force backend values to environment variables if present
 	s := reflect.ValueOf(conf.Backend).Elem()
 	numfields := s.NumField()
 	for i := 0; i < numfields; i++ {
@@ -255,7 +255,7 @@ func (service *Service) Manage() (string, error) {
 	// We must use a buffered channel or risk missing the signal
 	// if we're not ready to receive when the signal is sent.
 	interrupt := make(chan os.Signal, 1)
-	//lint:ignore SA1016 in this case we wan't to quit
+	//lint:ignore SA1016 in this case we want to quit
 	signal.Notify(interrupt, os.Interrupt, os.Kill, syscall.SIGTERM) // nolint: megacheck
 
 	// Set up a channel to receive the metrics
@@ -264,7 +264,7 @@ func (service *Service) Manage() (string, error) {
 	ticker := time.NewTicker(time.Second * time.Duration(conf.Interval))
 	defer ticker.Stop()
 
-	// Set up a ticker to collect metrics at givent interval (except for non scheduled backend)
+	// Set up a ticker to collect metrics at given interval (except for non scheduled backend)
 	if !conf.Backend.Scheduled() {
 		ticker.Stop()
 	} else {
@@ -275,7 +275,7 @@ func (service *Service) Manage() (string, error) {
 		}
 	}
 
-	// Memory statisctics
+	// Memory statistics
 	var memstats runtime.MemStats
 	// timer to execute memory collection
 	memtimer := time.NewTimer(time.Second * time.Duration(10))
@@ -292,7 +292,7 @@ func (service *Service) Manage() (string, error) {
 	for {
 		select {
 		case value := <-metrics:
-			// reset timer as a point has been recieved.
+			// reset timer as a point has been received.
 			// do that in the main thread to avoid collisions
 			if !memtimer.Stop() {
 				select {
@@ -353,7 +353,7 @@ func (service *Service) Manage() (string, error) {
 				log.Printf("memory usage: sys=%s alloc=%s\n", bytefmt.ByteSize(memstats.Sys), bytefmt.ByteSize(memstats.Alloc))
 				log.Printf("go routines: %d", runtime.NumGoroutine())
 				if conf.MEMProfiling {
-					f, err := os.OpenFile("/tmp/vsphere-graphite-mem.pb.gz", os.O_RDWR|os.O_CREATE, 0600) // nolin.vetshaddow
+					f, err := os.OpenFile("/tmp/vsphere-graphite-mem.pb.gz", os.O_RDWR|os.O_CREATE, 0600) // nolint.vetshaddow
 					if err != nil {
 						log.Fatal("could not create Mem profile: ", err)
 					}

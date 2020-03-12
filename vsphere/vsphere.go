@@ -24,13 +24,6 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
-const (
-	// VCENTERRESULTLIMIT is the maximum amount of result to fetch back in one query
-	VCENTERRESULTLIMIT = 500000.0
-	// INSTANCERATIO is the number of effective result in fonction of the metrics. This is necessary due to the possibility to retrieve instances with wildcards
-	INSTANCERATIO = 3.0
-)
-
 var cache Cache
 
 // VCenter description
@@ -47,7 +40,7 @@ func (vcenter *VCenter) ToString() string {
 }
 
 // AddMetric : add a metric definition to a metric group
-func (vcenter *VCenter) AddMetric(metric *MetricDef, mtype string) {
+func (vcenter *VCenter) AddMetric(metric MetricDef, mtype string) {
 	// find the metric group for the type
 	var metricGroup *MetricGroup
 	for _, tmp := range vcenter.MetricGroups {
@@ -68,13 +61,13 @@ func (vcenter *VCenter) AddMetric(metric *MetricDef, mtype string) {
 			return
 		}
 	}
-	metricGroup.Metrics = append(metricGroup.Metrics, metric)
+	metricGroup.Metrics = append(metricGroup.Metrics, &metric)
 }
 
-// Connect : Conncet to vcenter
+// Connect : Connect to vcenter
 func (vcenter *VCenter) Connect() (*govmomi.Client, error) {
 
-	// prepare vcname
+	// prepare vcName
 	vcName := strings.Split(vcenter.Hostname, ".")[0]
 
 	// Prepare vCenter Connections
@@ -154,7 +147,7 @@ func (vcenter *VCenter) Init(metrics []*Metric) {
 				continue
 			}
 			for _, mtype := range metric.ObjectType {
-				vcenter.AddMetric(metricdef, mtype)
+				vcenter.AddMetric(*metricdef, mtype)
 			}
 		}
 	}
@@ -165,7 +158,7 @@ func (vcenter *VCenter) Init(metrics []*Metric) {
 }
 
 // Query : Query a vcenter
-func (vcenter *VCenter) Query(interval int, domain string, replacepoint bool, properties []string, channel *chan backend.Point, wg *sync.WaitGroup) {
+func (vcenter *VCenter) Query(interval int, domain string, replacepoint bool, properties []string, resultLimit int, instanceRatio float64, channel *chan backend.Point, wg *sync.WaitGroup) {
 	defer func() {
 		if wg != nil {
 			wg.Done()
@@ -177,7 +170,7 @@ func (vcenter *VCenter) Query(interval int, domain string, replacepoint bool, pr
 
 	log.Printf("vcenter %s: setting up query inventory", vcName)
 
-	// Create the contect
+	// Create the context
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -217,7 +210,7 @@ func (vcenter *VCenter) Query(interval int, domain string, replacepoint bool, pr
 		datacenters = append(datacenters, child.Reference())
 	}
 
-	// get the object types from properties
+	// Get the object types from properties
 	objectTypes := []string{}
 	for _, property := range properties {
 		if propval, ok := Properties[property]; ok {
@@ -241,7 +234,7 @@ func (vcenter *VCenter) Query(interval int, domain string, replacepoint bool, pr
 		}
 	}
 
-	// Loop trought datacenters and create the intersting object reference list
+	// Loop trough datacenters and create the intersting object reference list
 	mors := []types.ManagedObjectReference{}
 	for _, datacenter := range datacenters {
 		// Create the CreateContentView request
@@ -267,7 +260,7 @@ func (vcenter *VCenter) Query(interval int, domain string, replacepoint bool, pr
 		return
 	}
 
-	//object for propery collection
+	//object for property collection
 	var objectSet []types.ObjectSpec
 	for _, mor := range mors {
 		objectSet = append(objectSet, types.ObjectSpec{Obj: mor, Skip: types.NewBool(false)})
@@ -468,9 +461,9 @@ func (vcenter *VCenter) Query(interval int, domain string, replacepoint bool, pr
 		}
 	}
 
-	// log skippped objects
+	// log skipped objects
 	log.Printf("vcenter %s: skipped %d objects because they are either not connected or not powered on", vcName, skipped)
-	// log total object refrenced
+	// log total object referenced
 	log.Printf("vcenter %s: %d objects (%d vm and %d hosts)", vcName, totalhosts+totalvms, totalvms, totalhosts)
 	// Check that there is something to query
 	querycount := len(queries)
@@ -483,14 +476,14 @@ func (vcenter *VCenter) Query(interval int, domain string, replacepoint bool, pr
 		metriccount = metriccount + len(query.MetricId)
 	}
 
-	expCounters := math.Ceil(float64(metriccount) * INSTANCERATIO)
+	expCounters := math.Ceil(float64(metriccount) * instanceRatio)
 	log.Printf("vcenter %s: queries generated", vcName)
 	log.Printf("vcenter %s: %d queries\n", vcName, querycount)
 	log.Printf("vcenter %s: %d total metricIds\n", vcName, metriccount)
-	log.Printf("vcenter %s: %g total counter (accounting for %g instances ratio)\n", vcName, expCounters, INSTANCERATIO)
+	log.Printf("vcenter %s: %g total counter (accounting for %g instances ratio)\n", vcName, expCounters, instanceRatio)
 
-	// separate in batches of queries if to avoid 500000 returend perf limit
-	batches := math.Ceil(expCounters / VCENTERRESULTLIMIT)
+	// separate in batches of queries if to avoid 500000 returned perf limit
+	batches := math.Ceil(expCounters / float64(resultLimit))
 	batchqueries := make([]*types.QueryPerf, int(batches))
 	querieslen := len(queries)
 	batchsize := int(math.Ceil(float64(querieslen) / batches))
@@ -529,7 +522,7 @@ func (vcenter *VCenter) Query(interval int, domain string, replacepoint bool, pr
 // ExecuteQueries : Query a vcenter for performances
 func ExecuteQueries(ctx context.Context, id int, r soap.RoundTripper, cache *Cache, queryperf *types.QueryPerf, timeStamp int64, replacepoint bool, domain string, vcName string, channel *chan backend.Point, wg *sync.WaitGroup) {
 
-	// Starting informations
+	// Starting information
 	requestedcount := len(queryperf.QuerySpec)
 	log.Printf("vcenter %s thread %d: requesting %d metrics\n", vcName, id, requestedcount)
 
@@ -576,7 +569,7 @@ func ExecuteQueries(ctx context.Context, id int, r soap.RoundTripper, cache *Cac
 		}
 		go ProcessMetric(cache, pem, timeStamp, replacepoint, domain, vcName, channel, &metricProcessWaitGroup)
 	}
-	// log total object refrenced
+	// log total object referenced
 	log.Printf("vcenter %s thread %d: %d objects (%d vm and %d hosts)", vcName, id, totalhosts+totalvms, totalvms, totalhosts)
 
 	// Check missing values in the aftermath
@@ -670,7 +663,7 @@ func ProcessMetric(cache *Cache, pem *types.PerfEntityMetric, timeStamp int64, r
 	if replacepoint {
 		rvcname = strings.Replace(rvcname, ".", "_", -1)
 	}
-	// prepare basic informaitons of point
+	// prepare basic information's of point
 	point := backend.Point{
 		VCenter:      rvcname,
 		ObjectType:   objType,
