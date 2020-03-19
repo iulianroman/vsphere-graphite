@@ -93,6 +93,14 @@ L:
 			// finish consuming metrics and break loop
 			log.Println("thinprom: signaled the end of the collection")
 			recdone = true
+			// reset timer
+			if !timeout.Stop() {
+				select {
+				case <-timeout.C:
+				default:
+				}
+			}
+			timeout.Reset(100 * time.Millisecond)
 		case <-timeout.C:
 			// stop timer
 			if recdone {

@@ -54,6 +54,14 @@ func (backend *Config) Collect(ch chan<- prometheus.Metric) {
 			backend.PrometheusSend(ch, point)
 		case <-*channels.Done:
 			recdone = true
+			// reset timer
+			if !rectimer.Stop() {
+				select {
+				case <-rectimer.C:
+				default:
+				}
+			}
+			rectimer.Reset(100 * time.Millisecond)
 		case <-rectimer.C:
 			// only exit when done and timeout
 			if recdone {
