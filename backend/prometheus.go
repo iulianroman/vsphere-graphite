@@ -4,7 +4,6 @@ package backend
 import (
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -20,8 +19,7 @@ func (backend *Config) Collect(ch chan<- prometheus.Metric) {
 	log.Println("prometheus: requesting metrics")
 
 	request := make(chan Point, 100)
-	done := make(chan bool)
-	channels := Channels{Request: &request, Done: &done}
+	channels := Channels{Request: &request}
 
 	select {
 	case *queries <- channels:
@@ -33,43 +31,13 @@ func (backend *Config) Collect(ch chan<- prometheus.Metric) {
 
 	// points received
 	points := 0
-	// handle timeout between point reception
-	rectimer := time.NewTimer(100 * time.Millisecond)
-	// check that the collection threads have finished
-	recdone := false
-	for {
-		select {
-		case point := <-*channels.Request:
-			// reset timer
-			if !rectimer.Stop() {
-				select {
-				case <-rectimer.C:
-				default:
-				}
-			}
-			rectimer.Reset(100 * time.Millisecond)
-			// increase points
-			points++
-			// send point to prometheus
-			backend.PrometheusSend(ch, point)
-		case <-*channels.Done:
-			recdone = true
-			// reset timer
-			if !rectimer.Stop() {
-				select {
-				case <-rectimer.C:
-				default:
-				}
-			}
-			rectimer.Reset(100 * time.Millisecond)
-		case <-rectimer.C:
-			// only exit when done and timeout
-			if recdone {
-				log.Printf("prometheus: sent %d points", points)
-				return
-			}
-		}
+	for point := range *channels.Request {
+		// increase points
+		points++
+		// send point to prometheus
+		backend.PrometheusSend(ch, point)
 	}
+	log.Printf("prometheus: sent %d points", points)
 }
 
 //PrometheusSend sends a point to prometheus

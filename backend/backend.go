@@ -26,7 +26,6 @@ import (
 // Channels are use for unscheduled backend
 type Channels struct {
 	Request *chan Point
-	Done    *chan bool
 }
 
 // Backend Interface
