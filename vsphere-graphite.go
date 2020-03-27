@@ -296,9 +296,6 @@ func (service *Service) Manage() (string, error) {
 	pointbuffer := make([]*backend.Point, conf.FlushSize)
 	bufferindex := 0
 
-	// wait group for non scheduled metric retrival
-	var wg sync.WaitGroup
-
 	for {
 		select {
 		case value := <-metrics:
@@ -323,6 +320,9 @@ func (service *Service) Manage() (string, error) {
 			}
 		case request := <-*queries:
 			go func() {
+				// wait group for non scheduled metric retrival
+				var wg sync.WaitGroup
+
 				log.Println("adhoc metric retrieval")
 				wg.Add(len(conf.VCenters))
 				for _, vcenter := range conf.VCenters {
