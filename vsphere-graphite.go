@@ -130,6 +130,16 @@ func (service *Service) Manage() (string, error) {
 		conf.Backend.Prefix = "vsphere"
 	}
 
+	// default resultlimit
+	if conf.VCenterResultLimit == 0 {
+		conf.VCenterResultLimit = 500000
+	}
+
+	// default result ratio
+	if conf.VCenterInstanceRatio == 0 {
+		conf.VCenterInstanceRatio = 3.0
+	}
+
 	if conf.CPUProfiling {
 		f, err := os.OpenFile("/tmp/vsphere-graphite-cpu.pb.gz", os.O_RDWR|os.O_CREATE, 0600) // nolint: vetshadow
 		if err != nil {
