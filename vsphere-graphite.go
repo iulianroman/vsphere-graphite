@@ -329,8 +329,7 @@ func (service *Service) Manage() (string, error) {
 					go queryVCenter(*vcenter, conf, request.Request, &wg)
 				}
 				wg.Wait()
-				//time.Sleep(5 * time.Second)
-				*request.Done <- true
+				close(*request.Request)
 				cleanup <- true
 			}()
 		case <-ticker.C:
