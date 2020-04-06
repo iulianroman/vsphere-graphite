@@ -7,7 +7,6 @@ import (
 	"log"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/cblomart/vsphere-graphite/utils"
 	"github.com/valyala/fasthttp"
@@ -53,8 +52,7 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	}
 	// prepare the channels for the request
 	request := make(chan Point, 100)
-	done := make(chan bool)
-	channels := Channels{Request: &request, Done: &done}
+	channels := Channels{Request: &request}
 	// create a buffer to organise metrics per type
 	buffer := map[string][]string{}
 	log.Println("thinprom: sending query request")
@@ -66,41 +64,20 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 		ctx.Error("Query buffer full", fasthttp.StatusConflict)
 		return
 	}
-	// start a timeout
-	timeout := time.NewTimer(100 * time.Millisecond)
+
 	// collected points
 	points := 0
-	// receive done
-	recdone := false
+
 	log.Println("thinprom: waiting for query results")
-L:
-	for {
-		select {
-		case point := <-*channels.Request:
-			// reset timer
-			if !timeout.Stop() {
-				select {
-				case <-timeout.C:
-				default:
-				}
-			}
-			timeout.Reset(100 * time.Millisecond)
-			// increased received points
-			points++
-			// add point to the buffer
-			addToThinPrometheusBuffer(buffer, &point)
-		case <-*channels.Done:
-			// finish consuming metrics and break loop
-			log.Println("thinprom: signaled the end of the collection")
-			recdone = true
-		case <-timeout.C:
-			// stop timer
-			if recdone {
-				log.Printf("thinprom: sent %d points", points)
-				break L
-			}
-		}
+	for point := range *channels.Request {
+		// increased received points
+		points++
+		// add point to the buffer
+		addToThinPrometheusBuffer(buffer, &point)
 	}
+	log.Println("thinprom: signaled the end of the collection")
+	log.Printf("thinprom: sent %d points", points)
+
 	ctx.SetContentType("text/plain; charset=utf8")
 	var outbuff bytes.Buffer
 	for key, vals := range buffer {

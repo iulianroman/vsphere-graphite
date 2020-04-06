@@ -138,6 +138,16 @@ This allows to use a generic config in a container image and set the backend by 
 
   Prefix to use in the backend.
 
+### Advanced parameters ###
+
+> **MOST OF THESE PARAMETERS SHOULDN'T BE TOUCHED**
+
+vCenter has limits on the quantity of data that can be returned in a request.
+The configuration following configuraiton file parameters can modify when to split permormance request into multiple requests:
+
+* VCenterResultLimit: the limit of elements that can be returned in a request (defaults to  500000)
+* VCenterInstanceRatio: a metric can return multiple results related to the object instances connected to the host or VM. (disks, network interfaces; the default ratio is 3.0)
+
 ## Execute vsphere-graphite as a container
 
 All builds are pushed to docker:

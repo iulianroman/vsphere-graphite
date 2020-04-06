@@ -130,6 +130,16 @@ func (service *Service) Manage() (string, error) {
 		conf.Backend.Prefix = "vsphere"
 	}
 
+	// default resultlimit
+	if conf.VCenterResultLimit == 0 {
+		conf.VCenterResultLimit = 500000
+	}
+
+	// default result ratio
+	if conf.VCenterInstanceRatio == 0 {
+		conf.VCenterInstanceRatio = 3.0
+	}
+
 	if conf.CPUProfiling {
 		f, err := os.OpenFile("/tmp/vsphere-graphite-cpu.pb.gz", os.O_RDWR|os.O_CREATE, 0600) // nolint: vetshadow
 		if err != nil {
@@ -286,9 +296,6 @@ func (service *Service) Manage() (string, error) {
 	pointbuffer := make([]*backend.Point, conf.FlushSize)
 	bufferindex := 0
 
-	// wait group for non scheduled metric retrival
-	var wg sync.WaitGroup
-
 	for {
 		select {
 		case value := <-metrics:
@@ -313,14 +320,16 @@ func (service *Service) Manage() (string, error) {
 			}
 		case request := <-*queries:
 			go func() {
+				// wait group for non scheduled metric retrival
+				var wg sync.WaitGroup
+
 				log.Println("adhoc metric retrieval")
 				wg.Add(len(conf.VCenters))
 				for _, vcenter := range conf.VCenters {
 					go queryVCenter(*vcenter, conf, request.Request, &wg)
 				}
 				wg.Wait()
-				//time.Sleep(5 * time.Second)
-				*request.Done <- true
+				close(*request.Request)
 				cleanup <- true
 			}()
 		case <-ticker.C:

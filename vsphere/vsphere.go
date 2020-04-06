@@ -94,13 +94,13 @@ func InitMetrics(metrics []*Metric, perfmanager *mo.PerformanceManager) {
 	// build a map of perf key per metric string id
 	metricToPerf := make(map[string]int32)
 	for _, perf := range perfmanager.PerfCounter {
-		key := fmt.Sprintf("%s.%s.%s", perf.GroupInfo.GetElementDescription().Key, perf.NameInfo.GetElementDescription().Key, string(perf.RollupType))
+		key := fmt.Sprintf("%s.%s.%s", strings.ToLower(perf.GroupInfo.GetElementDescription().Key), strings.ToLower(perf.NameInfo.GetElementDescription().Key), strings.ToLower(string(perf.RollupType)))
 		metricToPerf[key] = perf.Key
 	}
 	// fill in the metric key
 	for _, metric := range metrics {
 		for _, metricdef := range metric.Definition {
-			if key, ok := metricToPerf[metricdef.Metric]; ok {
+			if key, ok := metricToPerf[strings.ToLower(metricdef.Metric)]; ok {
 				metricdef.Key = key
 			}
 		}
