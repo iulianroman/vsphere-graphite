@@ -71,7 +71,7 @@ func (vcenter *VCenter) Connect() (*govmomi.Client, error) {
 	vcName := strings.Split(vcenter.Hostname, ".")[0]
 
 	// Prepare vCenter Connections
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(),1*time.Second)
 	defer cancel()
 	log.Printf("vcenter %s: connecting\n", vcName)
 	username := url.QueryEscape(vcenter.Username)
@@ -113,7 +113,7 @@ func (vcenter *VCenter) Init(metrics []*Metric) {
 
 	log.Printf("vcenter %s: initializing\n", vcName)
 	// connect to vcenter
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(),1*time.Second)
 	defer cancel()
 
 	client, err := vcenter.Connect()
@@ -171,7 +171,7 @@ func (vcenter *VCenter) Query(interval int, domain string, replacepoint bool, pr
 	log.Printf("vcenter %s: setting up query inventory", vcName)
 
 	// Create the context
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(),30*time.Second)
 	defer cancel()
 
 	// Get the client
