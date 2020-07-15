@@ -18,5 +18,5 @@ require (
 	github.com/valyala/fasthttp v1.15.0
 	github.com/vmware/govmomi v0.23.1
 	golang.org/x/net v0.0.0-20200602114024-627f9648deb9
-	gopkg.in/olivere/elastic.v5 v5.0.85
+	gopkg.in/olivere/elastic.v5 v5.0.86
 )
